@@ -1,7 +1,7 @@
 import { Mesh, Group, AnimationMixer, Vector2, Vector3, Texture } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import cat from './models/cat.fbx';
-import textureImage from './models/cat.jpg';
+import textureImage from './models/cat.png';
 
 interface IParams {
   availableFieldSize: Vector2;
@@ -52,7 +52,7 @@ export default class Cat extends Group {
 
     this.animationMixer = new AnimationMixer(catModel);
     const walkAmination = this.animationMixer.clipAction(
-      catModel.animations[0]
+      catModel.animations[1]
     );
     walkAmination.play();
   }
