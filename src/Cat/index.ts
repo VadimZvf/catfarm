@@ -1,12 +1,21 @@
-import { Mesh, Group, AnimationMixer, Vector2, Vector3, Texture } from 'three';
+import {
+  Mesh,
+  Group,
+  AnimationMixer,
+  Vector2,
+  Vector3,
+  MeshPhongMaterial
+} from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import CatTextureRenderer from './CatTextureRenderer';
 import cat from './models/cat.fbx';
-import textureImage from './models/cat.png';
 
 interface IParams {
   availableFieldSize: Vector2;
   initialPosition: Vector3;
 }
+
+const textureRenderer = new CatTextureRenderer();
 
 export default class Cat extends Group {
   constructor(params: IParams) {
@@ -52,22 +61,20 @@ export default class Cat extends Group {
 
     this.animationMixer = new AnimationMixer(catModel);
     const walkAmination = this.animationMixer.clipAction(
-      catModel.animations[1]
+      catModel.animations[0]
     );
     walkAmination.play();
   }
 
   private async load(): Promise<Group> {
-    const texturePromise = this.loadTexture();
     const modelPromise = this.loadModel();
+    const materialPromise = this.loadMaterial();
 
-    return Promise.all([texturePromise, modelPromise]).then(
-      ([texture, model]) => {
+    return Promise.all([modelPromise, materialPromise]).then(
+      ([model, material]) => {
         model.traverse((child) => {
-          if (child instanceof Mesh && child.isMesh) {
-            child.castShadow = true;
-            child.material.map = texture;
-            child.material.shininess = 0.1;
+          if (child instanceof Mesh && child.isMesh && child.name === 'Cat') {
+            child.material = material;
           }
         });
         return model;
@@ -87,17 +94,11 @@ export default class Cat extends Group {
     });
   }
 
-  private async loadTexture(): Promise<Texture> {
-    return new Promise((resolve) => {
-      const image = new Image();
-      image.src = textureImage;
+  private async loadMaterial(): Promise<MeshPhongMaterial> {
+    const texture = await textureRenderer.getTexture();
 
-      image.onload = () => {
-        const texture = new Texture();
-        texture.image = image;
-        texture.needsUpdate = true;
-        resolve(texture);
-      };
+    return new MeshPhongMaterial({
+      map: texture
     });
   }
 

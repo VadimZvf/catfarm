@@ -11,6 +11,10 @@ module.exports = {
         exclude: /node_modules/
       },
       {
+        test: /\.frag$/i,
+        use: 'raw-loader'
+      },
+      {
         test: /\.jpeg$|\.jpg$|\.png$|\.wav$|\.fbx$|\.obj$/,
         use: 'file-loader',
         exclude: /node_modules/
